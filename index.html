@@ -1,1 +1,216 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>นับถอยหลัง 4 เดือน – ยุบสภา คืนอำนาจให้ประชาชน</title>
+  <meta name="description" content="หน้าเว็บนับถอยหลัง 4 เดือน ยุบสภา คืนอำนาจให้ประชาชน – ฉากหลังสีดำ" />
+  <style>
+    :root {
+      --text: #fff;
+      --panel: #222222cc;
+      --accent: #ff7a1a; /* เปลี่ยนตัวเลขเป็นสีส้ม */
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Thai", "Noto Sans", Arial, sans-serif;
+      background: #000;
+      color: var(--text);
+      display: grid;
+      place-items: center;
+    }
+    .container {
+      width: min(980px, 92vw);
+      background: var(--panel);
+      backdrop-filter: blur(6px);
+      border-radius: 24px;
+      padding: 28px 28px 32px;
+      box-shadow: 0 10px 30px #00000088;
+      border: 1px solid #333;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-weight: 800;
+      line-height: 1.15;
+      font-size: clamp(1.4rem, 2.6vw + 1rem, 2.2rem);
+      letter-spacing: 0.2px;
+    }
+    .countdown {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin: 18px 0 4px;
+    }
+    .unit {
+      background: #111;
+      border-radius: 20px;
+      padding: 16px 10px 14px;
+      box-shadow: 0 8px 16px #000000aa;
+      border: 1px solid #333;
+      text-align: center;
+    }
+    .num {
+      font-variant-numeric: tabular-nums;
+      font-weight: 900;
+      font-size: clamp(2rem, 7vw, 4rem);
+      line-height: 1;
+      color: var(--accent);
+    }
+    .label {
+      margin-top: 8px;
+      font-size: .95rem;
+      opacity: .9;
+      font-weight: 600;
+    }
+    .comments {
+      margin-top: 24px;
+    }
+    .comments h2 {
+      margin-bottom: 12px;
+      font-size: 1.2rem;
+    }
+    .comment-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 10px;
+      background: #111;
+    }
+    .comment-list li {
+      margin-bottom: 8px;
+      padding: 6px 10px;
+      border-bottom: 1px solid #333;
+    }
+    .comment-form {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+    }
+    .comment-form input {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #333;
+      border-radius: 6px;
+      background: #000;
+      color: #fff;
+    }
+    .comment-form button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    .footer {
+      margin-top: 24px;
+      font-size: 0.9rem;
+      text-align: center;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <main class="container" role="main">
+    <h1>นับถอยหลัง <span aria-label="สี่เดือน">4 เดือน</span> – ยุบสภา คืนอำนาจให้ประชาชน</h1>
+
+    <section class="countdown" aria-live="polite" aria-atomic="true">
+      <div class="unit" aria-label="วัน">
+        <div class="num" id="days">–</div>
+        <div class="label">วัน</div>
+      </div>
+      <div class="unit" aria-label="ชั่วโมง">
+        <div class="num" id="hours">–</div>
+        <div class="label">ชั่วโมง</div>
+      </div>
+      <div class="unit" aria-label="นาที">
+        <div class="num" id="minutes">–</div>
+        <div class="label">นาที</div>
+      </div>
+      <div class="unit" aria-label="วินาที">
+        <div class="num" id="seconds">–</div>
+        <div class="label">วินาที</div>
+      </div>
+    </section>
+
+    <div class="comments">
+      <h2>แสดงความคิดเห็น</h2>
+      <ul class="comment-list" id="commentList"></ul>
+      <form class="comment-form" id="commentForm">
+        <input type="text" id="commentInput" placeholder="พิมพ์ความคิดเห็นของคุณ..." required />
+        <button type="submit">ส่ง</button>
+      </form>
+    </div>
+
+    <div class="footer">
+      <p>4-Month-Countdown-to-Dissolution | Public</p>
+    </div>
+  </main>
+
+  <script>
+    const TZ = 'Asia/Bangkok';
+    const toTZ = (d) => new Date(new Date(d).toLocaleString('en-US', { timeZone: TZ }));
+
+    function addMonths(date, months) {
+      const d = new Date(date.getTime());
+      const day = d.getDate();
+      d.setMonth(d.getMonth() + months);
+      if (d.getDate() < day) d.setDate(0);
+      return d;
+    }
+
+    const elDays = document.getElementById('days');
+    const elHours = document.getElementById('hours');
+    const elMinutes = document.getElementById('minutes');
+    const elSeconds = document.getElementById('seconds');
+
+    let startAt = toTZ(new Date());
+
+    function tick() {
+      const target = addMonths(startAt, 4);
+      const now = toTZ(new Date());
+      let diff = Math.max(0, target - now);
+
+      const sec = Math.floor(diff / 1000) % 60;
+      const min = Math.floor(diff / (1000 * 60)) % 60;
+      const hr  = Math.floor(diff / (1000 * 60 * 60)) % 24;
+      const day = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+      elDays.textContent = String(day).padStart(2, '0');
+      elHours.textContent = String(hr).padStart(2, '0');
+      elMinutes.textContent = String(min).padStart(2, '0');
+      elSeconds.textContent = String(sec).padStart(2, '0');
+
+      if (diff === 0) {
+        document.title = 'ถึงกำหนดแล้ว – ยุบสภา คืนอำนาจให้ประชาชน';
+      }
+    }
+
+    tick();
+    setInterval(tick, 1000);
+
+    // Comment system
+    const commentForm = document.getElementById('commentForm');
+    const commentInput = document.getElementById('commentInput');
+    const commentList = document.getElementById('commentList');
+
+    commentForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = commentInput.value.trim();
+      if (text) {
+        const li = document.createElement('li');
+        li.textContent = text;
+        commentList.appendChild(li);
+        commentInput.value = '';
+      }
+    });
+  </script>
+</body>
+</html>
 
